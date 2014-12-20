@@ -11,6 +11,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 // 这个类将会把一些常用的数据库操作封装起来，方便日后使用
+// 然后跳转到HttpUtil类中
 public class CoolWeatherDB {
 	
 	// 数据库名

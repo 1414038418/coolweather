@@ -37,7 +37,7 @@ public class CoolWeatherOpenHelper extends SQLiteOpenHelper {
 	 * city_id是Country表关联City表的外键
 	 */
 	public static final String CREATE_COUNTRY = "create table Country ("
-			+"id integer primary autoincrement,"
+			+"id integer primary key autoincrement,"
 			+"country_name text,"
 			+"country_code text,"
 			+"city_id integer)";
