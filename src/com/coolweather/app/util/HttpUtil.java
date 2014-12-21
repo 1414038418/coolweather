@@ -17,10 +17,10 @@ import org.xml.sax.InputSource;
  *  所以我们可以在util包中先增加一个HttpUtil类
  *	
  */
-// HttpUtil是网络操作公共类
+/** HttpUtil是网络操作公共类 */
 public class HttpUtil {
 	
-	// 这是一个静态方法，当想要发起网络请求时候只需简单的调用一下这个方法
+	/** 这是一个静态方法，当想要发起网络请求时候只需简单的调用一下这个方法 */
 	public static void sendHttpRequest (final String address,final HttpCallbackListener listener) {
 		new Thread(new Runnable() {
 			

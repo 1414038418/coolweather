@@ -1,6 +1,6 @@
 package com.coolweather.app.model;
 
-// Province的实体类
+/** Province的实体类 */
 public class Province {
 	
 	private int id;

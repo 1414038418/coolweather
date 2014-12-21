@@ -5,7 +5,10 @@ import java.util.List;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
@@ -25,7 +28,7 @@ import com.coolweather.app.util.HttpCallbackListener;
 import com.coolweather.app.util.HttpUtil;
 import com.coolweather.app.util.Utility;
 
-// 此活动用于遍历省市县数据
+/** 此活动用于遍历省市县数据 */
 public class ChooseAreaActivity extends Activity {
 	
 	public static final int LEVEL_PROVINCE = 0;
@@ -60,6 +63,14 @@ public class ChooseAreaActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		if (prefs.getBoolean("city_selected", false)) {
+			Intent intent = new Intent(this, WeatherActivity.class);
+			startActivity(intent);
+			finish();
+			return;
+		}
+		
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.choose_area);
 		
@@ -79,13 +90,19 @@ public class ChooseAreaActivity extends Activity {
 				} else if (currentLevel == LEVEL_CITY) {
 					selectedCity = cityList.get(position);
 					queryCounties();// 加载县级数据
+				} else if (currentLevel == LEVEL_COUNTRY) {
+					String countryCode = countryList.get(position).getCountryCode();
+					Intent intent = new Intent(ChooseAreaActivity.this, WeatherActivity.class);
+					intent.putExtra("country_code", countryCode);
+					startActivity(intent);
+					finish();
 				}
 			}
 		});
 		queryProvinces();// 加载省级数据
 	}
 	
-	// 查询全国所有的省，优先从数据库查询，如果没有查询到再去服务器上查询。
+	/** 查询全国所有的省，优先从数据库查询，如果没有查询到再去服务器上查询。*/
 	private void queryProvinces() {
 		provinceList = coolWeatherDB.loadProvinces();
 		if (provinceList.size() > 0) {
@@ -103,7 +120,7 @@ public class ChooseAreaActivity extends Activity {
 	}
 	
 
-	// 查询省内所有的市，优先从数据库查询，如果没有查询到再去服务器上查询。
+	/** 查询省内所有的市，优先从数据库查询，如果没有查询到再去服务器上查询。*/
 	private void queryCities() {
 		cityList = coolWeatherDB.loadCities(selectedProvince.getId());
 		if (cityList.size() > 0) {
@@ -120,7 +137,7 @@ public class ChooseAreaActivity extends Activity {
 		}
 	}
 	
-	// 查询选中市内的所有的县，优先从数据库查询，如果没有查询到，再去服务器上查询。
+	/** 查询选中市内的所有的县，优先从数据库查询，如果没有查询到，再去服务器上查询。*/
 	private void queryCounties() {
 		countryList = coolWeatherDB.loadCounties(selectedCity.getId());
 		if (countryList.size() > 0) {
@@ -133,12 +150,12 @@ public class ChooseAreaActivity extends Activity {
 			titleText.setText(selectedCity.getCityName());
 			currentLevel = LEVEL_COUNTRY;
 		} else {
-			queryFromServer(selectedCity.getCityCode(), "counrty");
+			queryFromServer(selectedCity.getCityCode(), "country");
 		}
 		
 	}
 	
-	// 根据传入代号和类型从服务器上查询省市县数据。
+	/** 根据传入代号和类型从服务器上查询省市县数据。*/
 	private void queryFromServer(final String code, final String type) {
 		String address;
 		if (!TextUtils.isEmpty(code)) {
@@ -156,11 +173,11 @@ public class ChooseAreaActivity extends Activity {
 					result = Utility.handleProvincesResponse(coolWeatherDB, response);
 				} else if ("city".equals(type)) {
 					result = Utility.handleCitiesResponse(coolWeatherDB, response, selectedProvince.getId());
-				} else if ("counrty".equals(type)) {
+				} else if ("country".equals(type)) {
 					result = Utility.handleCountiesResponse(coolWeatherDB, response, selectedCity.getId());
 				}
 				if (result) {
-					// 通过runOnUiThread()方法回到主线程处理逻辑
+					/** 通过runOnUiThread()方法回到主线程处理逻辑 */
 					runOnUiThread(new Runnable() {
 						
 						@Override
@@ -180,7 +197,7 @@ public class ChooseAreaActivity extends Activity {
 			
 			@Override
 			public void onError(Exception e) {
-				// 通过runOnUiThread()方法回到主线程处理逻辑
+				/** 通过runOnUiThread()方法回到主线程处理逻辑 */
 				runOnUiThread(new Runnable() {
 					
 					@Override
@@ -193,7 +210,7 @@ public class ChooseAreaActivity extends Activity {
 		});
 	}
 
-	// 显示进度对话框
+	/** 显示进度对话框 */
 	private void showProgressDialog() {
 		if (progressDialog == null) {
 			progressDialog = new ProgressDialog(this);
@@ -203,14 +220,14 @@ public class ChooseAreaActivity extends Activity {
 		progressDialog.show();
 	}
 	
-	// 关闭进度对话框
+	/** 关闭进度对话框 */
 	private void closeProgressDialog() {
 		if (progressDialog != null) {
 			progressDialog.dismiss();
 		}
 	}
 	
-	// 捕获Back按键，根据当前级别来判断，此时应该返回市列表，省列表，还是直接退出。
+	/** 捕获Back按键，根据当前级别来判断，此时应该返回市列表，省列表，还是直接退出。*/
 	@Override
 	public void onBackPressed() {
 		if (currentLevel == LEVEL_COUNTRY) {

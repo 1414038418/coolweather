@@ -1,6 +1,6 @@
 package com.coolweather.app.model;
 
-// City的实体类
+/** City的实体类 */
 public class City {
 	
 	private int id;

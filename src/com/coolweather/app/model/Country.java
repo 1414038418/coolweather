@@ -1,6 +1,6 @@
 package com.coolweather.app.model;
 
-// Country的实体类
+/** Country的实体类 */
 public class Country {
 	
 	private int id;
